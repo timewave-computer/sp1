@@ -415,8 +415,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a3c196a77437e7cc2fb515ce413a6401291578b5afc8ecb29a3c7ab957f05941"
 dependencies = [
  "ff 0.12.1",
- "group 0.12.1",
- "pairing 0.22.0",
+ "rand_core",
+ "subtle",
+]
+
+[[package]]
+name = "bls12_381"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7bc6d6292be3a19e6379786dac800f551e5865a5bb51ebbe3064ab80433f403"
+dependencies = [
+ "ff 0.13.0",
+ "group 0.13.0",
+ "pairing",
  "rand_core",
  "subtle",
 ]
@@ -429,7 +440,7 @@ dependencies = [
  "cfg-if",
  "ff 0.13.0",
  "group 0.13.0",
- "pairing 0.23.0",
+ "pairing",
  "rand_core",
  "sp1-lib",
  "subtle",
@@ -443,7 +454,7 @@ dependencies = [
  "cfg-if",
  "ff 0.13.0",
  "group 0.13.0",
- "pairing 0.23.0",
+ "pairing",
  "rand_core",
  "sp1-lib",
  "subtle",
@@ -2845,15 +2856,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a6ce0b6bee23fd54e05306f6752ae80b0b71a91166553ab39d7899801497237"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "pairing"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "135590d8bdba2b31346f9cd1fb2a912329f5135e832a4f422942eb6ead8b6b3b"
-dependencies = [
- "group 0.12.1",
 ]
 
 [[package]]
@@ -5560,14 +5562,12 @@ dependencies = [
 [[package]]
 name = "zkhash"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4352d1081da6922701401cdd4cbf29a2723feb4cfabb5771f6fee8e9276da1c7"
 dependencies = [
  "ark-ff",
  "ark-std",
  "bitvec",
  "blake2",
- "bls12_381 0.7.1",
+ "bls12_381 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder",
  "cfg-if",
  "group 0.12.1",
