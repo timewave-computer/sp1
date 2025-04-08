@@ -96,10 +96,7 @@ impl Neg for AffinePoint {
     /// as `-P = (-u, v)`.
     #[inline]
     fn neg(self) -> AffinePoint {
-        AffinePoint {
-            u: -self.u,
-            v: self.v,
-        }
+        AffinePoint { u: -self.u, v: self.v }
     }
 }
 
@@ -200,13 +197,7 @@ impl Neg for ExtendedPoint {
     /// is made without loss of generality.
     #[inline]
     fn neg(self) -> ExtendedPoint {
-        ExtendedPoint {
-            u: -self.u,
-            v: self.v,
-            z: self.z,
-            t1: -self.t1,
-            t2: self.t2,
-        }
+        ExtendedPoint { u: -self.u, v: self.v, z: self.z, t1: -self.t1, t2: self.t2 }
     }
 }
 
@@ -214,13 +205,7 @@ impl From<AffinePoint> for ExtendedPoint {
     /// Constructs an extended point (with `Z = 1`) from
     /// an affine point using the map `(u, v) => (u, v, 1, u, v)`.
     fn from(affine: AffinePoint) -> ExtendedPoint {
-        ExtendedPoint {
-            u: affine.u,
-            v: affine.v,
-            z: Fq::one(),
-            t1: affine.u,
-            t2: affine.v,
-        }
+        ExtendedPoint { u: affine.u, v: affine.v, z: Fq::one(), t1: affine.u, t2: affine.v }
     }
 }
 
@@ -235,10 +220,7 @@ impl<'a> From<&'a ExtendedPoint> for AffinePoint {
         // its inverse.
         let zinv = extended.z.invert().unwrap();
 
-        AffinePoint {
-            u: extended.u * zinv,
-            v: extended.v * zinv,
-        }
+        AffinePoint { u: extended.u * zinv, v: extended.v * zinv }
     }
 }
 
@@ -261,11 +243,7 @@ pub struct AffineNielsPoint {
 impl AffineNielsPoint {
     /// Constructs this point from the neutral element `(0, 1)`.
     pub const fn identity() -> Self {
-        AffineNielsPoint {
-            v_plus_u: Fq::one(),
-            v_minus_u: Fq::one(),
-            t2d: Fq::zero(),
-        }
+        AffineNielsPoint { v_plus_u: Fq::one(), v_minus_u: Fq::one(), t2d: Fq::zero() }
     }
 
     #[inline]
@@ -414,10 +392,7 @@ const EDWARDS_D2: Fq = Fq::from_raw([
 impl AffinePoint {
     /// Constructs the neutral element `(0, 1)`.
     pub const fn identity() -> Self {
-        AffinePoint {
-            u: Fq::zero(),
-            v: Fq::one(),
-        }
+        AffinePoint { u: Fq::zero(), v: Fq::one() }
     }
 
     /// Determines if this point is the identity.
@@ -603,25 +578,21 @@ impl AffinePoint {
             .into_iter()
             .zip(denominators.into_iter())
             .map(|(item, inv_denominator)| {
-                item.and_then(
-                    |Item {
-                         v, sign, numerator, ..
-                     }| {
-                        (numerator * inv_denominator).sqrt().and_then(|u| {
-                            // Fix the sign of `u` if necessary
-                            let flip_sign = Choice::from((u.to_bytes()[0] ^ sign) & 1);
-                            let u_negated = -u;
-                            let final_u = Fq::conditional_select(&u, &u_negated, flip_sign);
+                item.and_then(|Item { v, sign, numerator, .. }| {
+                    (numerator * inv_denominator).sqrt().and_then(|u| {
+                        // Fix the sign of `u` if necessary
+                        let flip_sign = Choice::from((u.to_bytes()[0] ^ sign) & 1);
+                        let u_negated = -u;
+                        let final_u = Fq::conditional_select(&u, &u_negated, flip_sign);
 
-                            // If u == 0, flip_sign == sign_bit. We therefore want to reject the
-                            // encoding as non-canonical if all of the following occur:
-                            // - u == 0
-                            // - flip_sign == true
-                            let u_is_zero = u.ct_eq(&Fq::zero());
-                            CtOption::new(AffinePoint { u: final_u, v }, !(u_is_zero & flip_sign))
-                        })
-                    },
-                )
+                        // If u == 0, flip_sign == sign_bit. We therefore want to reject the
+                        // encoding as non-canonical if all of the following occur:
+                        // - u == 0
+                        // - flip_sign == true
+                        let u_is_zero = u.ct_eq(&Fq::zero());
+                        CtOption::new(AffinePoint { u: final_u, v }, !(u_is_zero & flip_sign))
+                    })
+                })
             })
             .collect()
     }
@@ -638,13 +609,7 @@ impl AffinePoint {
 
     /// Returns an `ExtendedPoint` for use in arithmetic operations.
     pub const fn to_extended(&self) -> ExtendedPoint {
-        ExtendedPoint {
-            u: self.u,
-            v: self.v,
-            z: Fq::one(),
-            t1: self.u,
-            t2: self.v,
-        }
+        ExtendedPoint { u: self.u, v: self.v, z: Fq::one(), t1: self.u, t2: self.v }
     }
 
     /// Performs a pre-processing step that produces an `AffineNielsPoint`
@@ -678,13 +643,7 @@ impl AffinePoint {
 impl ExtendedPoint {
     /// Constructs an extended point from the neutral element `(0, 1)`.
     pub const fn identity() -> Self {
-        ExtendedPoint {
-            u: Fq::zero(),
-            v: Fq::one(),
-            z: Fq::one(),
-            t1: Fq::zero(),
-            t2: Fq::zero(),
-        }
+        ExtendedPoint { u: Fq::zero(), v: Fq::one(), z: Fq::one(), t1: Fq::zero(), t2: Fq::zero() }
     }
 
     /// Determines if this point is the identity.
@@ -818,13 +777,8 @@ impl ExtendedPoint {
 
         // The remaining arithmetic is exactly the process of converting
         // from a completed point to an extended point.
-        CompletedPoint {
-            u: uv2 - vv_plus_uu,
-            v: vv_plus_uu,
-            z: vv_minus_uu,
-            t: zz2 - vv_minus_uu,
-        }
-        .into_extended()
+        CompletedPoint { u: uv2 - vv_plus_uu, v: vv_plus_uu, z: vv_minus_uu, t: zz2 - vv_minus_uu }
+            .into_extended()
     }
 
     #[inline]
@@ -909,13 +863,7 @@ impl<'a, 'b> Add<&'b ExtendedNielsPoint> for &'a ExtendedPoint {
 
         // The remaining arithmetic is exactly the process of converting
         // from a completed point to an extended point.
-        CompletedPoint {
-            u: b - a,
-            v: b + a,
-            z: d + c,
-            t: d - c,
-        }
-        .into_extended()
+        CompletedPoint { u: b - a, v: b + a, z: d + c, t: d - c }.into_extended()
     }
 }
 
@@ -929,13 +877,7 @@ impl<'a, 'b> Sub<&'b ExtendedNielsPoint> for &'a ExtendedPoint {
         let c = self.t1 * self.t2 * other.t2d;
         let d = (self.z * other.z).double();
 
-        CompletedPoint {
-            u: b - a,
-            v: b + a,
-            z: d - c,
-            t: d + c,
-        }
-        .into_extended()
+        CompletedPoint { u: b - a, v: b + a, z: d - c, t: d + c }.into_extended()
     }
 }
 
@@ -957,13 +899,7 @@ impl<'a, 'b> Add<&'b AffineNielsPoint> for &'a ExtendedPoint {
 
         // The remaining arithmetic is exactly the process of converting
         // from a completed point to an extended point.
-        CompletedPoint {
-            u: b - a,
-            v: b + a,
-            z: d + c,
-            t: d - c,
-        }
-        .into_extended()
+        CompletedPoint { u: b - a, v: b + a, z: d + c, t: d - c }.into_extended()
     }
 }
 
@@ -977,13 +913,7 @@ impl<'a, 'b> Sub<&'b AffineNielsPoint> for &'a ExtendedPoint {
         let c = self.t1 * self.t2 * other.t2d;
         let d = self.z.double();
 
-        CompletedPoint {
-            u: b - a,
-            v: b + a,
-            z: d - c,
-            t: d + c,
-        }
-        .into_extended()
+        CompletedPoint { u: b - a, v: b + a, z: d - c, t: d + c }.into_extended()
     }
 }
 
@@ -1251,10 +1181,7 @@ impl Group for ExtendedPoint {
             let p = ((v2 - Fq::one())
                 * ((Fq::one() + EDWARDS_D * v2).invert().unwrap_or(Fq::zero())))
             .sqrt()
-            .map(|u| AffinePoint {
-                u: if flip_sign { -u } else { u },
-                v,
-            });
+            .map(|u| AffinePoint { u: if flip_sign { -u } else { u }, v });
 
             if p.is_some().into() {
                 let p = p.unwrap().to_curve();
@@ -1467,18 +1394,12 @@ fn test_d_is_non_quadratic_residue() {
 
 #[test]
 fn test_affine_niels_point_identity() {
-    assert_eq!(
-        AffineNielsPoint::identity().v_plus_u,
-        AffinePoint::identity().to_niels().v_plus_u
-    );
+    assert_eq!(AffineNielsPoint::identity().v_plus_u, AffinePoint::identity().to_niels().v_plus_u);
     assert_eq!(
         AffineNielsPoint::identity().v_minus_u,
         AffinePoint::identity().to_niels().v_minus_u
     );
-    assert_eq!(
-        AffineNielsPoint::identity().t2d,
-        AffinePoint::identity().to_niels().t2d
-    );
+    assert_eq!(AffineNielsPoint::identity().t2d, AffinePoint::identity().to_niels().t2d);
 }
 
 #[test]
@@ -1491,14 +1412,8 @@ fn test_extended_niels_point_identity() {
         ExtendedNielsPoint::identity().v_minus_u,
         ExtendedPoint::identity().to_niels().v_minus_u
     );
-    assert_eq!(
-        ExtendedNielsPoint::identity().z,
-        ExtendedPoint::identity().to_niels().z
-    );
-    assert_eq!(
-        ExtendedNielsPoint::identity().t2d,
-        ExtendedPoint::identity().to_niels().t2d
-    );
+    assert_eq!(ExtendedNielsPoint::identity().z, ExtendedPoint::identity().to_niels().z);
+    assert_eq!(ExtendedNielsPoint::identity().t2d, ExtendedPoint::identity().to_niels().t2d);
 }
 
 #[test]
@@ -1648,12 +1563,7 @@ const EIGHT_TORSION: [AffinePoint; 8] = [
         ]),
     ),
     AffinePoint::from_raw_unchecked(
-        Fq::from_raw([
-            0x0001_0000_0000_0000,
-            0xec03_0002_7603_0000,
-            0x8d51_ccce_7603_04d0,
-            0x0,
-        ]),
+        Fq::from_raw([0x0001_0000_0000_0000, 0xec03_0002_7603_0000, 0x8d51_ccce_7603_04d0, 0x0]),
         Fq::from_raw([0x0, 0x0, 0x0, 0x0]),
     ),
     AffinePoint::from_raw_unchecked(
