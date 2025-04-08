@@ -34,6 +34,7 @@ members = [
   "crates/zkvm/*",
   "crates/test-artifacts",
   "zkhash",
+  "jubjub",
 ]
 exclude = ["examples/target"]
 resolver = "2"
@@ -51,6 +52,7 @@ debug-assertions = true
 
 [workspace.dependencies]
 # sp1
+jubjub = { path = "jubjub" }
 zkhash = { path = "zkhash" }
 sp1-build = { path = "crates/build", version = "4.1.7" }
 sp1-cli = { path = "crates/cli", version = "4.1.7", default-features = false }
